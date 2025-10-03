@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.2
+- Added screenshots in markdown files.
+
 ## 1.0.1
 - Updated documentation in `README.md` with comprehensive usage instructions, parameter details, and examples.
 - Added detailed sections for features, installation, customization, and dependencies in `README.md`.

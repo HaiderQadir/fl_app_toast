@@ -12,13 +12,28 @@ A Flutter library for displaying customizable, animated toast notifications in y
 - **Dynamic Styling**: Customize background color, text color, border radius, text size, and image size.
 - **Overlay-Based Rendering**: Toasts are displayed using Flutter's `Overlay` for non-intrusive integration.
 
+
+## Screenshots
+
+<p align="center">
+  <img src="screenshots/flapptoast_ss (1).png" alt="Image 1" width="250"/>
+  <img src="screenshots/flapptoast_ss (2).png" alt="Image 2" width="250"/>
+  <img src="screenshots/flapptoast_ss (3).png" alt="Image 3" width="250"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/flapptoast_ss (4).png" alt="Image 4" width="250"/>
+  <img src="screenshots/flapptoast_ss (5).png" alt="Image 5" width="250"/>
+</p>
+
+
 ## Installation
 
 Add `fl_app_toast` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  fl_app_toast: ^1.0.1
+  fl_app_toast: ^1.0.2
 ```
 
 Run the following command to install the package:
