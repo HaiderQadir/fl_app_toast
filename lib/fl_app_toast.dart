@@ -22,12 +22,14 @@ class FlAppToast {
         Duration duration = const Duration(seconds: 3),
         Color? backgroundColor,
         Color? textColor,
+        Color? iconColor, // 👈 new param
         double borderRadius = 12.0,
         bool dismissible = true,
         Curve animationCurve = Curves.easeOutBack,
         double? textSize,
         double? imageSize,
       }) {
+
     final overlay = Overlay.of(context);
     if (overlay == null) return;
 
@@ -42,6 +44,7 @@ class FlAppToast {
         position: position,
         backgroundColor: backgroundColor,
         textColor: textColor,
+        iconColor: iconColor,
         borderRadius: borderRadius,
         duration: duration,
         dismissible: dismissible,
@@ -65,6 +68,7 @@ class _FlAppToastWidget extends StatefulWidget {
   final ToastPosition position;
   final Color? backgroundColor;
   final Color? textColor;
+  final Color? iconColor;
   final double borderRadius;
   final Duration duration;
   final bool dismissible;
@@ -82,6 +86,7 @@ class _FlAppToastWidget extends StatefulWidget {
     required this.position,
     this.backgroundColor,
     this.textColor,
+    this.iconColor,
     required this.borderRadius,
     required this.duration,
     required this.dismissible,
@@ -198,7 +203,9 @@ class _FlAppToastWidgetState extends State<_FlAppToastWidget>
     final Widget? effectiveIcon = widget.icon ??
         (widget.imagePath != null
             ? _buildImageWidget(widget.imagePath!)
-            : _getDefaultIcon(widget.type));
+            : _getDefaultIcon(widget.type, widget.iconColor ?? Colors.white
+        ));
+
 
     final Alignment alignment;
     switch (widget.position) {
@@ -269,12 +276,12 @@ class _FlAppToastWidgetState extends State<_FlAppToastWidget>
                                       color:
                                       colorScheme.surface.withOpacity(0.2),
                                     ),
-                                    padding: const EdgeInsets.all(8),
+                                    padding: const EdgeInsets.all(2),
                                     child: effectiveIcon,
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: 10),
                             ],
                             Flexible(
                               child: FadeTransition(
@@ -320,22 +327,24 @@ class _FlAppToastWidgetState extends State<_FlAppToastWidget>
   }
 
   // Returns a default icon for the given toast type
-  Widget? _getDefaultIcon(ToastType type) {
+  Widget? _getDefaultIcon(ToastType type, Color iconColor) {
     switch (type) {
       case ToastType.success:
         return Icon(Icons.check_circle_outline,
-            size: widget.imageSize, color: Colors.white);
+            size: widget.imageSize, color: iconColor);
       case ToastType.error:
         return Icon(Icons.error_outline,
-            size: widget.imageSize, color: Colors.white);
+            size: widget.imageSize, color: iconColor);
       case ToastType.warning:
         return Icon(Icons.warning_amber_outlined,
-            size: widget.imageSize, color: Colors.white);
+            size: widget.imageSize, color: iconColor);
       case ToastType.info:
         return Icon(Icons.info_outline,
-            size: widget.imageSize, color: Colors.white);
+            size: widget.imageSize, color: iconColor);
     }
   }
+
+
 
   // Loads an image or SVG for the toast icon
   Widget _buildImageWidget(String path) {
