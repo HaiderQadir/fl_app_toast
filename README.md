@@ -33,7 +33,7 @@ Add `fl_app_toast` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  fl_app_toast: ^1.0.3
+  fl_app_toast: ^2.0.1
 ```
 
 Run the following command to install the package:
@@ -127,7 +127,7 @@ Ensure these dependencies are included in your `pubspec.yaml`:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_svg: ^2.0.0
+  flutter_svg: ^2.0.1
 ```
 
 ## Customization
