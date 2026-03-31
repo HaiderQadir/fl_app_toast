@@ -50,7 +50,7 @@ Import the package in your Dart file:
 import 'package:fl_app_toast/fl_app_toast.dart';
 ```
 
-Show a toast by calling the `FlAppToast.show` method:
+Show a toast by calling the `FlAppToast.showToast` method:
 
 ```dart
 FlAppToast.showToast(
@@ -163,7 +163,7 @@ The animation curve can be customized using the `animationCurve` parameter (defa
 
 ## Notes
 
-- Ensure the `BuildContext` passed to `FlAppToast.show` has access to an `Overlay`. Typically, this is the context from a widget within a `MaterialApp` or `WidgetsApp`.
+- Ensure the `BuildContext` passed to `FlAppToast.showToast` has access to an `Overlay`. Typically, this is the context from a widget within a `MaterialApp` or `WidgetsApp`.
 - If using SVG images, ensure the `flutter_svg` package is correctly configured and the SVG assets are included in your `pubspec.yaml`.
 - The toast is rendered using an `OverlayEntry`, making it non-intrusive and compatible with most Flutter layouts.
 - The toast is constrained to a minimum width of 100 and a maximum width of 400 pixels to ensure readability.
