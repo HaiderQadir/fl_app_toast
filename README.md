@@ -33,7 +33,7 @@ Add `fl_app_toast` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  fl_app_toast: ^2.1.0
+  fl_app_toast: ^2.1.1
 ```
 
 Run the following command to install the package:

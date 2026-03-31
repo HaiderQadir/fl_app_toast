@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.1
+- Textual updates to the Documentation.
+
 ## 2.1.0
 - Documentation updates and improvements.
 
