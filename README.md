@@ -33,7 +33,7 @@ Add `fl_app_toast` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  fl_app_toast: ^2.0.1
+  fl_app_toast: ^2.1.0
 ```
 
 Run the following command to install the package:
@@ -53,8 +53,7 @@ import 'package:fl_app_toast/fl_app_toast.dart';
 Show a toast by calling the `FlAppToast.show` method:
 
 ```dart
-FlAppToast.show(
-  context,
+FlAppToast.showToast(
   'This is a toast message!',
   type: ToastType.success,
   position: ToastPosition.bottom,
@@ -89,8 +88,7 @@ FlAppToast.show(
 ### Example with Custom Icon
 
 ```dart
-FlAppToast.show(
-  context,
+FlAppToast.showToast(
   'Success! Operation completed.',
   type: ToastType.success,
   icon: Icon(Icons.star, color: Colors.yellow, size: 24.0),
@@ -103,8 +101,7 @@ FlAppToast.show(
 ### Example with SVG Image
 
 ```dart
-FlAppToast.show(
-  context,
+FlAppToast.showToast(
   'Warning: Check your input.',
   type: ToastType.warning,
   imagePath: 'assets/warning.svg',
@@ -127,7 +124,7 @@ Ensure these dependencies are included in your `pubspec.yaml`:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_svg: ^2.0.1
+  flutter_svg: ^2.0.0
 ```
 
 ## Customization

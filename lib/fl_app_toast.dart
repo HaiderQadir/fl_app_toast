@@ -3,6 +3,8 @@ library fl_app_toast;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+/// Enums for toast types and positions
+
 /// Toast types
 enum ToastType { success, error, warning, info }
 
@@ -14,9 +16,8 @@ class FlAppToast {
   /// If you have your own, assign it: FlAppToast.navigatorKey = myKey;
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  /// Shows a toast message. Works in initState and doesn't require BuildContext.
-  static void showToast(
-    String message, {
+  /// Shows a toast message. Works in initState and does not require BuildContext.
+  static void showToast(String message, {
     BuildContext? context,
     ToastType type = ToastType.info,
     ToastPosition position = ToastPosition.bottom,
@@ -31,6 +32,7 @@ class FlAppToast {
     Widget? icon,
     String? imagePath,
   }) {
+
     // Try to show immediately
     final success = _tryShow(
       context: context,
@@ -49,7 +51,7 @@ class FlAppToast {
       imagePath: imagePath,
     );
 
-    // If it failed (likely called too early in initState), retry after the first frame
+    // If it doesn't work, try again after the UI loads
     if (!success) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _tryShow(
@@ -90,15 +92,15 @@ class FlAppToast {
   }) {
     OverlayState? overlay;
 
-    // 1. Try finding overlay via provided context
+    // 1. Use the context to look for the overlay
     if (context != null && context.mounted) {
       overlay = Overlay.maybeOf(context, rootOverlay: true);
     }
 
-    // 2. Try finding overlay via our navigatorKey
+    // 2. Use navigatorKey to look for the overlay
     overlay ??= navigatorKey.currentState?.overlay;
 
-    // 3. Last resort: Search the entire widget tree for an Overlay
+    // 3. If nothing else works, look through the whole widget tree to find an Overlay
     if (overlay == null) {
       final rootElement = WidgetsBinding.instance.rootElement;
       if (rootElement != null) {
@@ -128,6 +130,7 @@ class FlAppToast {
   }
 
   static OverlayState? _findOverlayInTree(Element element) {
+
     if (element is StatefulElement && element.state is OverlayState) {
       return element.state as OverlayState;
     }
@@ -138,45 +141,44 @@ class FlAppToast {
     return found;
   }
 
-  static void _insertOverlay(
-    OverlayState overlay,
-    String message,
-    Widget? icon,
-    String? imagePath,
-    ToastType type,
-    ToastPosition position,
-    Color? backgroundColor,
-    Color? textColor,
-    Color? iconColor,
-    double borderRadius,
-    Duration duration,
-    bool dismissible,
-    double? textSize,
-    double? imageSize,
-  ) {
+  static void _insertOverlay(OverlayState overlay,
+      String message,
+      Widget? icon,
+      String? imagePath,
+      ToastType type,
+      ToastPosition position,
+      Color? backgroundColor,
+      Color? textColor,
+      Color? iconColor,
+      double borderRadius,
+      Duration duration,
+      bool dismissible,
+      double? textSize,
+      double? imageSize,) {
     late OverlayEntry overlayEntry;
 
     overlayEntry = OverlayEntry(
-      builder: (context) => _FlAppToastWidget(
-        message: message,
-        icon: icon,
-        imagePath: imagePath,
-        type: type,
-        position: position,
-        backgroundColor: backgroundColor,
-        textColor: textColor,
-        iconColor: iconColor,
-        borderRadius: borderRadius,
-        duration: duration,
-        dismissible: dismissible,
-        textSize: textSize ?? 14.0,
-        imageSize: imageSize ?? 20.0,
-        onDismissed: () {
-          if (overlayEntry.mounted) {
-            overlayEntry.remove();
-          }
-        },
-      ),
+      builder: (context) =>
+          _FlAppToastWidget(
+            message: message,
+            icon: icon,
+            imagePath: imagePath,
+            type: type,
+            position: position,
+            backgroundColor: backgroundColor,
+            textColor: textColor,
+            iconColor: iconColor,
+            borderRadius: borderRadius,
+            duration: duration,
+            dismissible: dismissible,
+            textSize: textSize ?? 14.0,
+            imageSize: imageSize ?? 20.0,
+            onDismissed: () {
+              if (overlayEntry.mounted) {
+                overlayEntry.remove();
+              }
+            },
+          ),
     );
 
     overlay.insert(overlayEntry);
@@ -231,13 +233,14 @@ class _FlAppToastWidgetState extends State<_FlAppToastWidget>
   @override
   void initState() {
     super.initState();
+
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
 
     _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-    
+
     _slideAnimation = Tween<Offset>(
       begin: Offset(0, widget.position == ToastPosition.top ? -0.2 : 0.2),
       end: Offset.zero,
@@ -261,8 +264,9 @@ class _FlAppToastWidgetState extends State<_FlAppToastWidget>
 
   @override
   Widget build(BuildContext context) {
-    final Color bgColor = widget.backgroundColor ?? const Color(0xD9000000);
+
     final Color txtColor = widget.textColor ?? Colors.white;
+    final Color bgColor = widget.backgroundColor ?? const Color(0xD9000000);
 
     final Widget? effectiveIcon = widget.icon ??
         (widget.imagePath != null
@@ -320,6 +324,7 @@ class _FlAppToastWidgetState extends State<_FlAppToastWidget>
   }
 
   Widget _buildImageWidget(String path) {
+
     if (path.endsWith('.svg')) {
       return SvgPicture.asset(path, width: widget.imageSize, height: widget.imageSize);
     }
@@ -328,12 +333,22 @@ class _FlAppToastWidgetState extends State<_FlAppToastWidget>
 
   Widget? _getDefaultIcon(ToastType type, Color color) {
     IconData icon;
+
     switch (type) {
-      case ToastType.success: icon = Icons.check_circle; break;
-      case ToastType.error: icon = Icons.error; break;
-      case ToastType.warning: icon = Icons.warning; break;
-      case ToastType.info: icon = Icons.info; break;
+      case ToastType.success:
+        icon = Icons.check_circle;
+        break;
+      case ToastType.error:
+        icon = Icons.error;
+        break;
+      case ToastType.warning:
+        icon = Icons.warning;
+        break;
+      case ToastType.info:
+        icon = Icons.info;
+        break;
     }
+
     return Icon(icon, color: color, size: widget.imageSize);
   }
 }
