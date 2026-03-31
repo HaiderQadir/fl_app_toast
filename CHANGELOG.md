@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.3
+- Added context-less support via `FlAppToast.navigatorKey`.
+- Added automatic `Overlay` discovery in the widget tree.
+- Fixed issue where toasts would not show when called from `initState`.
+- Added automatic retry with `addPostFrameCallback` for early calls.
+- Simplified `showToast` API for easier use.
+
 ## 1.0.2
 - Added screenshots in markdown files.
 

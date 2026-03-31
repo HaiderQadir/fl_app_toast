@@ -33,7 +33,7 @@ Add `fl_app_toast` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  fl_app_toast: ^1.0.2
+  fl_app_toast: ^1.0.3
 ```
 
 Run the following command to install the package:
@@ -61,9 +61,9 @@ FlAppToast.show(
   duration: Duration(seconds: 3),
   backgroundColor: Colors.green,
   textColor: Colors.white,
-  borderRadius: 8.0,
-  textSize: 16.0,
-  imageSize: 24.0,
+  borderRadius: 20.0,
+  textSize: 12.0,
+  imageSize: 20.0,
 );
 ```
 

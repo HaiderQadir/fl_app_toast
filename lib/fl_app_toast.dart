@@ -3,36 +3,157 @@ library fl_app_toast;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-/// A Flutter library for customizable toasts with smooth animations,
-/// supporting dynamic text/image sizes, toast types, positions, and overlay-based rendering.
-
+/// Toast types
 enum ToastType { success, error, warning, info }
 
+/// Toast positions
 enum ToastPosition { top, center, bottom }
 
 class FlAppToast {
-  // Displays a customizable toast with smooth animations
-  static void show(
-      BuildContext context,
-      String message, {
-        Widget? icon,
-        String? imagePath,
-        ToastType type = ToastType.info,
-        ToastPosition position = ToastPosition.bottom,
-        Duration duration = const Duration(seconds: 3),
-        Color? backgroundColor,
-        Color? textColor,
-        Color? iconColor, // 👈 new param
-        double borderRadius = 12.0,
-        bool dismissible = true,
-        Curve animationCurve = Curves.easeOutBack,
-        double? textSize,
-        double? imageSize,
-      }) {
+  /// Global navigator key.
+  /// If you have your own, assign it: FlAppToast.navigatorKey = myKey;
+  static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-    final overlay = Overlay.of(context);
-    if (overlay == null) return;
+  /// Shows a toast message. Works in initState and doesn't require BuildContext.
+  static void showToast(
+    String message, {
+    BuildContext? context,
+    ToastType type = ToastType.info,
+    ToastPosition position = ToastPosition.bottom,
+    Duration duration = const Duration(seconds: 3),
+    Color? backgroundColor,
+    Color? textColor,
+    Color? iconColor,
+    double borderRadius = 12.0,
+    bool dismissible = true,
+    double? textSize,
+    double? imageSize,
+    Widget? icon,
+    String? imagePath,
+  }) {
+    // Try to show immediately
+    final success = _tryShow(
+      context: context,
+      message: message,
+      type: type,
+      position: position,
+      duration: duration,
+      backgroundColor: backgroundColor,
+      textColor: textColor,
+      iconColor: iconColor,
+      borderRadius: borderRadius,
+      dismissible: dismissible,
+      textSize: textSize,
+      imageSize: imageSize,
+      icon: icon,
+      imagePath: imagePath,
+    );
 
+    // If it failed (likely called too early in initState), retry after the first frame
+    if (!success) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _tryShow(
+          context: context,
+          message: message,
+          type: type,
+          position: position,
+          duration: duration,
+          backgroundColor: backgroundColor,
+          textColor: textColor,
+          iconColor: iconColor,
+          borderRadius: borderRadius,
+          dismissible: dismissible,
+          textSize: textSize,
+          imageSize: imageSize,
+          icon: icon,
+          imagePath: imagePath,
+        );
+      });
+    }
+  }
+
+  static bool _tryShow({
+    BuildContext? context,
+    required String message,
+    required ToastType type,
+    required ToastPosition position,
+    required Duration duration,
+    Color? backgroundColor,
+    Color? textColor,
+    Color? iconColor,
+    required double borderRadius,
+    required bool dismissible,
+    double? textSize,
+    double? imageSize,
+    Widget? icon,
+    String? imagePath,
+  }) {
+    OverlayState? overlay;
+
+    // 1. Try finding overlay via provided context
+    if (context != null && context.mounted) {
+      overlay = Overlay.maybeOf(context, rootOverlay: true);
+    }
+
+    // 2. Try finding overlay via our navigatorKey
+    overlay ??= navigatorKey.currentState?.overlay;
+
+    // 3. Last resort: Search the entire widget tree for an Overlay
+    if (overlay == null) {
+      final rootElement = WidgetsBinding.instance.rootElement;
+      if (rootElement != null) {
+        overlay = _findOverlayInTree(rootElement);
+      }
+    }
+
+    if (overlay == null) return false;
+
+    _insertOverlay(
+      overlay,
+      message,
+      icon,
+      imagePath,
+      type,
+      position,
+      backgroundColor,
+      textColor,
+      iconColor,
+      borderRadius,
+      duration,
+      dismissible,
+      textSize,
+      imageSize,
+    );
+    return true;
+  }
+
+  static OverlayState? _findOverlayInTree(Element element) {
+    if (element is StatefulElement && element.state is OverlayState) {
+      return element.state as OverlayState;
+    }
+    OverlayState? found;
+    element.visitChildren((child) {
+      found ??= _findOverlayInTree(child);
+    });
+    return found;
+  }
+
+  static void _insertOverlay(
+    OverlayState overlay,
+    String message,
+    Widget? icon,
+    String? imagePath,
+    ToastType type,
+    ToastPosition position,
+    Color? backgroundColor,
+    Color? textColor,
+    Color? iconColor,
+    double borderRadius,
+    Duration duration,
+    bool dismissible,
+    double? textSize,
+    double? imageSize,
+  ) {
     late OverlayEntry overlayEntry;
 
     overlayEntry = OverlayEntry(
@@ -48,17 +169,21 @@ class FlAppToast {
         borderRadius: borderRadius,
         duration: duration,
         dismissible: dismissible,
-        animationCurve: animationCurve,
         textSize: textSize ?? 14.0,
         imageSize: imageSize ?? 20.0,
         onDismissed: () {
-          overlayEntry.remove();
+          if (overlayEntry.mounted) {
+            overlayEntry.remove();
+          }
         },
       ),
     );
+
     overlay.insert(overlayEntry);
   }
 }
+
+// ==================== Private Toast Widget ====================
 
 class _FlAppToastWidget extends StatefulWidget {
   final String message;
@@ -72,13 +197,11 @@ class _FlAppToastWidget extends StatefulWidget {
   final double borderRadius;
   final Duration duration;
   final bool dismissible;
-  final Curve animationCurve;
   final double textSize;
   final double imageSize;
   final VoidCallback onDismissed;
 
   const _FlAppToastWidget({
-    Key? key,
     required this.message,
     this.icon,
     this.imagePath,
@@ -90,11 +213,10 @@ class _FlAppToastWidget extends StatefulWidget {
     required this.borderRadius,
     required this.duration,
     required this.dismissible,
-    required this.animationCurve,
     required this.textSize,
     required this.imageSize,
     required this.onDismissed,
-  }) : super(key: key);
+  });
 
   @override
   State<_FlAppToastWidget> createState() => _FlAppToastWidgetState();
@@ -104,85 +226,31 @@ class _FlAppToastWidgetState extends State<_FlAppToastWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
   late Animation<Offset> _slideAnimation;
-  late Animation<double> _iconRotationAnimation;
-  late Animation<double> _shadowAnimation;
-  late Animation<double> _iconFadeAnimation;
-  late Animation<double> _textFadeAnimation;
 
-  // Sets up animations for a smooth toast entrance and exit
   @override
   void initState() {
     super.initState();
-
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 400),
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Interval(0.0, 0.6, curve: widget.animationCurve),
-      ),
-    );
-
-    _scaleAnimation = Tween<double>(begin: 0.7, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Interval(0.0, 0.8, curve: Curves.easeOutBack),
-      ),
-    );
-
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    
     _slideAnimation = Tween<Offset>(
-      begin: Offset(0, widget.position == ToastPosition.top ? -0.5 : 0.5),
+      begin: Offset(0, widget.position == ToastPosition.top ? -0.2 : 0.2),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Interval(0.0, 0.7, curve: widget.animationCurve),
-      ),
-    );
-
-    _iconRotationAnimation = Tween<double>(begin: -0.2, end: 0.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Interval(0.2, 0.8, curve: Curves.easeOutBack),
-      ),
-    );
-
-    _shadowAnimation = Tween<double>(begin: 0.0, end: 4.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Interval(0.0, 0.6, curve: widget.animationCurve),
-      ),
-    );
-
-    _iconFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Interval(0.3, 0.7, curve: widget.animationCurve),
-      ),
-    );
-
-    _textFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Interval(0.4, 0.8, curve: widget.animationCurve),
-      ),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _controller.forward();
 
-    if (widget.duration.inMilliseconds > 0) {
-      Future.delayed(widget.duration, () async {
-        if (mounted) {
-          await _controller.reverse();
-          widget.onDismissed();
-        }
-      });
-    }
+    Future.delayed(widget.duration, () async {
+      if (mounted) {
+        await _controller.reverse();
+        widget.onDismissed();
+      }
+    });
   }
 
   @override
@@ -191,117 +259,57 @@ class _FlAppToastWidgetState extends State<_FlAppToastWidget>
     super.dispose();
   }
 
-  // Builds the toast UI with animated effects
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    final Color bgColor = widget.backgroundColor ?? Colors.grey[800]!;
+    final Color bgColor = widget.backgroundColor ?? const Color(0xD9000000);
     final Color txtColor = widget.textColor ?? Colors.white;
 
     final Widget? effectiveIcon = widget.icon ??
         (widget.imagePath != null
             ? _buildImageWidget(widget.imagePath!)
-            : _getDefaultIcon(widget.type, widget.iconColor ?? Colors.white
-        ));
+            : _getDefaultIcon(widget.type, widget.iconColor ?? Colors.white));
 
-
-    final Alignment alignment;
-    switch (widget.position) {
-      case ToastPosition.top:
-        alignment = Alignment.topCenter;
-        break;
-      case ToastPosition.center:
-        alignment = Alignment.center;
-        break;
-      case ToastPosition.bottom:
-        alignment = Alignment.bottomCenter;
-        break;
-    }
-
-    return Positioned.fill(
-      child: IgnorePointer(
-        ignoring: !widget.dismissible,
-        child: SafeArea(
-          child: GestureDetector(
-            onTap: widget.dismissible
-                ? () async {
-              await _controller.reverse();
-              widget.onDismissed();
-            }
-                : null,
-            child: Container(
-              alignment: alignment,
-              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 50),
-              child: SlideTransition(
-                position: _slideAnimation,
-                child: ScaleTransition(
-                  scale: _scaleAnimation,
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Material(
-                      elevation: _shadowAnimation.value,
-                      borderRadius: BorderRadius.circular(widget.borderRadius),
-                      color: Colors.transparent,
-                      child: Container(
-                        constraints:
-                        const BoxConstraints(minWidth: 100, maxWidth: 400),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 7),
-                        decoration: BoxDecoration(
-                          color: bgColor,
-                          borderRadius:
-                          BorderRadius.circular(widget.borderRadius),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: _shadowAnimation.value,
-                              spreadRadius: _shadowAnimation.value / 2,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (effectiveIcon != null) ...[
-                              FadeTransition(
-                                opacity: _iconFadeAnimation,
-                                child: RotationTransition(
-                                  turns: _iconRotationAnimation,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color:
-                                      colorScheme.surface.withOpacity(0.2),
-                                    ),
-                                    padding: const EdgeInsets.all(2),
-                                    child: effectiveIcon,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                            ],
-                            Flexible(
-                              child: FadeTransition(
-                                opacity: _textFadeAnimation,
-                                child: Text(
-                                  widget.message,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: txtColor,
-                                    fontSize: widget.textSize,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  semanticsLabel: widget.message,
-                                ),
-                              ),
-                            ),
-                          ],
+    return Positioned(
+      top: widget.position == ToastPosition.top ? 60 : (widget.position == ToastPosition.center ? 0 : null),
+      bottom: widget.position == ToastPosition.bottom ? 60 : (widget.position == ToastPosition.center ? 0 : null),
+      left: 20,
+      right: 20,
+      child: Center(
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  borderRadius: BorderRadius.circular(widget.borderRadius),
+                  boxShadow: const [
+                    BoxShadow(color: Colors.black26, blurRadius: 10, spreadRadius: 1),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (effectiveIcon != null) ...[
+                      effectiveIcon,
+                      const SizedBox(width: 12),
+                    ],
+                    Flexible(
+                      child: Text(
+                        widget.message,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: txtColor,
+                          fontSize: widget.textSize,
+                          fontWeight: FontWeight.w500,
+                          decoration: TextDecoration.none,
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -311,57 +319,21 @@ class _FlAppToastWidgetState extends State<_FlAppToastWidget>
     );
   }
 
-  // Picks a background color based on the toast type
-  Color _getBackgroundColor(ColorScheme colorScheme, ToastType type) {
-    switch (type) {
-      case ToastType.success:
-        return colorScheme.primaryContainer;
-      case ToastType.error:
-        return colorScheme.errorContainer;
-      case ToastType.warning:
-        return colorScheme.secondaryContainer;
-      case ToastType.info:
-      default:
-        return Colors.grey[800]!;
-    }
-  }
-
-  // Returns a default icon for the given toast type
-  Widget? _getDefaultIcon(ToastType type, Color iconColor) {
-    switch (type) {
-      case ToastType.success:
-        return Icon(Icons.check_circle_outline,
-            size: widget.imageSize, color: iconColor);
-      case ToastType.error:
-        return Icon(Icons.error_outline,
-            size: widget.imageSize, color: iconColor);
-      case ToastType.warning:
-        return Icon(Icons.warning_amber_outlined,
-            size: widget.imageSize, color: iconColor);
-      case ToastType.info:
-        return Icon(Icons.info_outline,
-            size: widget.imageSize, color: iconColor);
-    }
-  }
-
-
-
-  // Loads an image or SVG for the toast icon
   Widget _buildImageWidget(String path) {
     if (path.endsWith('.svg')) {
-      return SvgPicture.asset(
-        path,
-        width: widget.imageSize,
-        height: widget.imageSize,
-        fit: BoxFit.contain,
-      );
-    } else {
-      return Image.asset(
-        path,
-        width: widget.imageSize,
-        height: widget.imageSize,
-        fit: BoxFit.contain,
-      );
+      return SvgPicture.asset(path, width: widget.imageSize, height: widget.imageSize);
     }
+    return Image.asset(path, width: widget.imageSize, height: widget.imageSize);
+  }
+
+  Widget? _getDefaultIcon(ToastType type, Color color) {
+    IconData icon;
+    switch (type) {
+      case ToastType.success: icon = Icons.check_circle; break;
+      case ToastType.error: icon = Icons.error; break;
+      case ToastType.warning: icon = Icons.warning; break;
+      case ToastType.info: icon = Icons.info; break;
+    }
+    return Icon(icon, color: color, size: widget.imageSize);
   }
 }
