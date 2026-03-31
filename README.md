@@ -4,13 +4,13 @@ A Flutter library for displaying customizable, animated toast notifications in y
 
 ## Features
 
-- **Customizable Toast Types**: Supports `success`, `error`, `warning`, and `info` toasts with default icons and background colors.
-- **Flexible Positioning**: Display toasts at the `top`, `center`, or `bottom` of the screen.
-- **Smooth Animations**: Includes fade, scale, slide, rotation, and shadow animations for a polished user experience.
-- **Custom Icons and Images**: Use custom widgets, SVG, or raster images for toast icons.
-- **Dismissible Toasts**: Allow users to dismiss toasts by tapping, with configurable duration.
-- **Dynamic Styling**: Customize background color, text color, border radius, text size, and image size.
-- **Overlay-Based Rendering**: Toasts are displayed using Flutter's `Overlay` for non-intrusive integration.
+- **Context-less Support**: Show toasts from anywhere (Services, ViewModels, etc.) without passing `BuildContext`.
+- **InitState Ready**: Safely call `showToast` inside `initState`; the library automatically waits for the first frame.
+- **Robust Overlay Discovery**: Automatically finds the `Overlay` in your widget tree even if `navigatorKey` isn't set.
+- **Customizable Toast Types**: Supports `success`, `error`, `warning`, and `info` toasts with default icons.
+- **Flexible Positioning**: Display toasts at the `top`, `center`, or `bottom`.
+- **Smooth Animations**: High-performance fade, scale, and slide transitions.
+- **Custom Icons and Images**: Full support for custom widgets and SVG assets.
 
 
 ## Screenshots
@@ -145,8 +145,8 @@ You can override the default icon with a custom `Widget` or an image (SVG or ras
 The toast includes the following animations:
 
 - **Fade**: Smoothly fades in and out.
-- **Scale**: Scales the toast from 70% to 100% size.
-- **Slide**: Slides in from the top or bottom based on the `position`.
+- **Scale**: Subtle bounce effect (80% to 100%).
+- **Slide**: Gentle slide-in from the top or bottom.
 - **Icon Rotation**: Subtle rotation effect for the icon.
 - **Shadow**: Dynamic shadow elevation for depth.
 - **Icon/Text Fade**: Staggered fade-in for the icon and text.
