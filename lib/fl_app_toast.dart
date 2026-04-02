@@ -1,22 +1,45 @@
+/// FlAppToast - A simple library to show toasts in Flutter.
 library fl_app_toast;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'enums.dart';
 
-/// Enums for toast types and positions
+export 'enums.dart';
 
-/// Toast types
-enum ToastType { success, error, warning, info }
-
-/// Toast positions
-enum ToastPosition { top, center, bottom }
-
+/// The main class to show toasts.
 class FlAppToast {
-  /// Global navigator key.
-  /// If you have your own, assign it: FlAppToast.navigatorKey = myKey;
+  /// Private constructor.
+  FlAppToast._();
+
+  /// The navigator key used to show toasts without using context.
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  /// Shows a toast message. Works in initState and does not require BuildContext.
+  /// Shows a toast message on the screen.
+  /// 
+  /// You can call this from anywhere, even inside initState.
+  /// 
+  /// New additions:
+  /// * **Context-less**: Works without [context] if [navigatorKey] is set in MaterialApp.
+  /// * **InitState Safe**: Automatically waits for the UI to be ready if called during startup.
+  /// * **Text-only**: Set [showIcon] to false to show only the message.
+  ///
+  /// Parameters:
+  /// * [message]: The text to show.
+  /// * [context]: Optional context.
+  /// * [type]: Type of the toast.
+  /// * [position]: Where to show it.
+  /// * [duration]: How long it stays.
+  /// * [backgroundColor]: Background color.
+  /// * [textColor]: Text color.
+  /// * [iconColor]: Icon color.
+  /// * [borderRadius]: Rounded corners size.
+  /// * [dismissible]: If true, you can tap to close it.
+  /// * [textSize]: Size of the text.
+  /// * [imageSize]: Size of the icon.
+  /// * [icon]: A custom widget for the icon.
+  /// * [imagePath]: Path to an image or SVG file.
+  /// * [showIcon]: Whether to show the icon (default is true).
   static void showToast(String message, {
     BuildContext? context,
     ToastType type = ToastType.info,
@@ -31,6 +54,7 @@ class FlAppToast {
     double? imageSize,
     Widget? icon,
     String? imagePath,
+    bool showIcon = true,
   }) {
 
     // Try to show immediately
@@ -49,6 +73,7 @@ class FlAppToast {
       imageSize: imageSize,
       icon: icon,
       imagePath: imagePath,
+      showIcon: showIcon,
     );
 
     // If it doesn't work, try again after the UI loads
@@ -69,6 +94,7 @@ class FlAppToast {
           imageSize: imageSize,
           icon: icon,
           imagePath: imagePath,
+          showIcon: showIcon,
         );
       });
     }
@@ -89,6 +115,7 @@ class FlAppToast {
     double? imageSize,
     Widget? icon,
     String? imagePath,
+    required bool showIcon,
   }) {
     OverlayState? overlay;
 
@@ -125,6 +152,7 @@ class FlAppToast {
       dismissible,
       textSize,
       imageSize,
+      showIcon,
     );
     return true;
   }
@@ -154,7 +182,8 @@ class FlAppToast {
       Duration duration,
       bool dismissible,
       double? textSize,
-      double? imageSize,) {
+      double? imageSize,
+      bool showIcon,) {
     late OverlayEntry overlayEntry;
 
     overlayEntry = OverlayEntry(
@@ -173,6 +202,7 @@ class FlAppToast {
             dismissible: dismissible,
             textSize: textSize ?? 14.0,
             imageSize: imageSize ?? 20.0,
+            showIcon: showIcon,
             onDismissed: () {
               if (overlayEntry.mounted) {
                 overlayEntry.remove();
@@ -201,6 +231,7 @@ class _FlAppToastWidget extends StatefulWidget {
   final bool dismissible;
   final double textSize;
   final double imageSize;
+  final bool showIcon;
   final VoidCallback onDismissed;
 
   const _FlAppToastWidget({
@@ -217,6 +248,7 @@ class _FlAppToastWidget extends StatefulWidget {
     required this.dismissible,
     required this.textSize,
     required this.imageSize,
+    required this.showIcon,
     required this.onDismissed,
   });
 
@@ -268,10 +300,11 @@ class _FlAppToastWidgetState extends State<_FlAppToastWidget>
     final Color txtColor = widget.textColor ?? Colors.white;
     final Color bgColor = widget.backgroundColor ?? const Color(0xD9000000);
 
+    // Logic to determine if we should show an icon
     final Widget? effectiveIcon = widget.icon ??
         (widget.imagePath != null
             ? _buildImageWidget(widget.imagePath!)
-            : _getDefaultIcon(widget.type, widget.iconColor ?? Colors.white));
+            : (widget.showIcon ? _getDefaultIcon(widget.type, widget.iconColor ?? Colors.white) : null));
 
     return Positioned(
       top: widget.position == ToastPosition.top ? 60 : (widget.position == ToastPosition.center ? 0 : null),

@@ -1,12 +1,12 @@
 # Changelog
 
-## 2.1.2
-- Textual updates to the Documentation.
+## 2.2.0
+- **New Feature**: Added support for text-only toasts. Use the `showIcon: false` flag to hide icons.
+- Added full DartDoc comments for the public API to improve pub.dev score.
+- Added a package example in the `example/` directory.
+- Small internal cleanups and performance improvements.
 
-## 2.1.1
-- Textual updates to the Documentation.
-
-## 2.1.0
+## 2.1.2 / 2.1.1 / 2.1.0
 - Documentation updates and improvements.
 
 ## 2.0.0

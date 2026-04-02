@@ -1,13 +1,13 @@
 # FlAppToast
 
-A Flutter library for displaying customizable, animated toast notifications in your Flutter applications. It supports dynamic text and image sizes, multiple toast types, customizable positions, and overlay-based rendering with smooth animations.
+A Flutter library for displaying customizable, animated toast notifications. **FlAppToast** is easy to use, supports context-less calls, and works perfectly in `initState`.
 
-## Features
+## 🚀 Features
 
-- **Context-less Support**: Show toasts from anywhere (Services, ViewModels, etc.) without passing `BuildContext`.
-- **InitState Ready**: Safely call `showToast` inside `initState`; the library automatically waits for the first frame.
-- **Robust Overlay Discovery**: Automatically finds the `Overlay` in your widget tree even if `navigatorKey` isn't set.
-- **Customizable Toast Types**: Supports `success`, `error`, `warning`, and `info` toasts with default icons.
+- **Context-less Support**: Show toasts from anywhere without passing `BuildContext`.
+- **InitState Ready**: Safely call `showToast` inside `initState`.
+- **Just Text Support**: Option to show toasts without any icons or images.
+- **Customizable Toast Types**: Supports `success`, `error`, `warning`, and `info` toasts.
 - **Flexible Positioning**: Display toasts at the `top`, `center`, or `bottom`.
 - **Smooth Animations**: High-performance fade, scale, and slide transitions.
 - **Custom Icons and Images**: Full support for custom widgets and SVG assets.
@@ -33,7 +33,7 @@ Add `fl_app_toast` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  fl_app_toast: ^2.1.2
+  fl_app_toast: ^2.2.0
 ```
 
 Run the following command to install the package:
@@ -68,22 +68,21 @@ FlAppToast.showToast(
 
 ### Parameters
 
-| Parameter          | Type              | Description                                                                 | Default Value                     |
-|--------------------|-------------------|-----------------------------------------------------------------------------|-----------------------------------|
-| `context`          | `BuildContext`    | The build context for overlay rendering.                                    | Required                          |
-| `message`          | `String`          | The message to display in the toast.                                        | Required                          |
-| `icon`             | `Widget?`         | Custom widget for the toast icon.                                           | `null`                            |
-| `imagePath`        | `String?`         | Path to an image or SVG file for the toast icon.                            | `null`                            |
-| `type`             | `ToastType`       | Type of toast: `success`, `error`, `warning`, or `info`.                    | `ToastType.info`                  |
-| `position`         | `ToastPosition`   | Position of the toast: `top`, `center`, or `bottom`.                        | `ToastPosition.bottom`            |
-| `duration`         | `Duration`        | Duration the toast is displayed before auto-dismissing.                     | `Duration(seconds: 3)`            |
+| Parameter          | Type              | Description                                                                 | Default Value                    |
+|--------------------|-------------------|-----------------------------------------------------------------------------|----------------------------------|
+| `message`          | `String`          | The message to display in the toast.                                        | Required                         |
+| `icon`             | `Widget?`         | Custom widget for the toast icon.                                           | `null`                           |
+| `imagePath`        | `String?`         | Path to an image or SVG file for the toast icon.                            | `null`                           |
+| `type`             | `ToastType`       | Type of toast: `success`, `error`, `warning`, or `info`.                    | `ToastType.info`                 |
+| `position`         | `ToastPosition`   | Position of the toast: `top`, `center`, or `bottom`.                        | `ToastPosition.bottom`           |
+| `duration`         | `Duration`        | Duration the toast is displayed before auto-dismissing.                     | `Duration(seconds: 3)`           |
 | `backgroundColor`  | `Color?`          | Background color of the toast.                                              | Theme-based or `Colors.grey[800]` |
-| `textColor`        | `Color?`          | Text color of the toast message.                                            | `Colors.white`                    |
-| `borderRadius`     | `double`          | Border radius of the toast container.                                       | `12.0`                            |
-| `dismissible`      | `bool`            | Whether the toast can be dismissed by tapping.                              | `true`                            |
-| `animationCurve`   | `Curve`           | Animation curve for toast transitions.                                      | `Curves.easeOutBack`              |
-| `textSize`         | `double?`         | Font size of the toast message.                                             | `14.0`                            |
-| `imageSize`        | `double?`         | Size of the toast icon or image.                                            | `20.0`                            |
+| `textColor`        | `Color?`          | Text color of the toast message.                                            | `Colors.white`                   |
+| `borderRadius`     | `double`          | Border radius of the toast container.                                       | `12.0`                           |
+| `dismissible`      | `bool`            | Whether the toast can be dismissed by tapping.                              | `true`                           |
+| `animationCurve`   | `Curve`           | Animation curve for toast transitions.                                      | `Curves.easeOutBack`             |
+| `textSize`         | `double?`         | Font size of the toast message.                                             | `14.0`                           |
+| `imageSize`        | `double?`         | Size of the toast icon or image.                                            | `20.0`                           |
 
 ### Example with Custom Icon
 
@@ -164,7 +163,6 @@ The animation curve can be customized using the `animationCurve` parameter (defa
 ## Notes
 
 - If using SVG images, ensure the `flutter_svg` package is correctly configured and the SVG assets are included in your `pubspec.yaml`.
-- The toast is rendered using an `OverlayEntry`, making it non-intrusive and compatible with most Flutter layouts.
 - The toast is constrained to a minimum width of 100 and a maximum width of 400 pixels to ensure readability.
 
 ## Contributing
